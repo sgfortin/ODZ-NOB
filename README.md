@@ -22,7 +22,7 @@ FastANI v0.1.3 was used to calculate the average nucleotide identity of NOB MAGs
 
 A first look for nxrB genes was performed on KBase using the “Search with HMMs of Environmental Bioelement Families” v1 and the available Nitrite oxidation-NxrB HMM. Each result was checked manually using NCBI blastn searches. Further nxrB genes were identified using BLASTn v2.12.0 on KBase using known nxrB genes previously identified from NOB, an E-value threshold of 0.001, and a minimum sequence identity threshold of 50%.
 
-Genomes were annotated with DRAM 
+Genomes were annotated with DRAM and default settings.
 
 ### Mapping Relative Abundance of MAGs with Bowtie2
 Short reads from OMZ metagenome samples produced in this study and published metagenomes from OMZ regions and the Tara Oceans database were mapped to ODZ NOB MAGs created in this study and published NOB genomes and SAGs using bowtie2. 
@@ -65,3 +65,19 @@ ODZ NOB genomes, the most abundant oxic SAG, and Nitrospina gracilis were annota
         anvi-run-kegg-kofams -c ${SAMPLE}_contigs.db
         anvi-run-pfams -c ${SAMPLE}_contigs.db
         anvi-export-functions -c ${SAMPLE}_contigs.db -o ${SAMPLE}_functions_anvio.txt
+
+### Pangenomic Analysis with Anvi'o
+A pangenomic analysis was performed on the three most dominant and closely related ODZ NOB (NOB1, NOB2, NOB3), the most dominant oxic NOB SAG_1a (AG_538_K21) and _Nitrospina gracilis_ (strain 3/211).
+
+        #!/bin/bash
+
+        #SBATCH -N 1
+        #SBATCH --ntasks-per-node=1
+        #SBATCH --mem=2Gb
+        #SBATCH -t 02:00:00
+
+        anvi-gen-genomes-storage -e external_genomes2.txt -o NOBt2-GENOMES.db
+
+        anvi-pan-genome -g NOBt2-GENOMES.db --project-name 'NOBpg2' --output-dir NOBpg2 --sensitive
+
+        anvi-display-pan -g NOBt2-GENOMES.db -p NOBt2-PAN.db 
