@@ -30,16 +30,36 @@ Short reads from OMZ metagenome samples produced in this study and published met
     #SBATCH --mem=500
     #SBATCH -t 14:00:00
     #SBATCH --array=1-2
-    #SBATCH --mail-type=begin
-    #SBATCH --mail-type=fail
-    #SBATCH --mail-type=end
-    #SBATCH --mail-user=sf3033@princeton.edu
+    
 
     SAMPLE=$(sed -n "$SLURM_ARRAY_TASK_ID"p array_set1.txt)
 
-    bowtie2 --end-to-end --very-sensitive -x all_NOB_one -1 /projects/WARD/Sam_Fortin/JGI_2019_seq/${SAMPLE}_QC_reads_R1.fastq -2   /projects/WARD/Sam_Fortin/JGI_2019_seq/${SAMPLE}_QC_reads_R2.fastq>${SAMPLE}_all_NOB_bowtie2.sam
+    bowtie2 --end-to-end --very-sensitive -x all_NOB_one -1 /sequencing_samples/${SAMPLE}_QC_reads_R1.fastq -2   /sequencing_samples/${SAMPLE}_QC_reads_R2.fastq>${SAMPLE}_all_NOB_bowtie2.sam
 
     samtools view -S -b ${SAMPLE}_all_NOB_bowtie2.sam>${SAMPLE}_all_NOB.bam
     samtools sort ${SAMPLE}_all_NOB.bam -o ${SAMPLE}_all_NOB_sort.bam
     samtools index ${SAMPLE}_all_NOB_sort.bam
     samtools idxstats ${SAMPLE}_all_NOB_sort.bam | tee ${SAMPLE}_all_NOB_one.txt
+
+
+### Genome Annotation with Anvi'o 
+ODZ NOB genomes, the most abundant oxic SAG, and Nitrospina gracilis 
+
+        #!/bin/bash
+
+        #SBATCH -N 1
+        #SBATCH --ntasks-per-node=1
+        #SBATCH --mem=5Gb
+        #SBATCH -t 02:00:00
+        #SBATCH --array=1-2
+
+        SAMPLE=$(sed -n "$SLURM_ARRAY_TASK_ID"p array_set1.txt)
+
+        anvi-script-reformat-fasta ${SAMPLE}.fa -o ${SAMPLE}_simpnames.fa --simplify-names --report-file ${SAMPLE}_simpnames_report.txt
+        anvi-gen-contigs-database -f ${SAMPLE}_simpnames.fa -o NOB1e_contigs.db --ignore-internal-stop-codons
+        anvi-run-hmms -c NOB1e_contigs.db
+        anvi-run-scg-taxonomy -c NOB1e_contigs.db
+        anvi-run-ncbi-cogs -c NOB1e_contigs.db
+        anvi-run-kegg-kofams -c NOB1e_contigs.db
+        anvi-run-pfams -c NOB1e_contigs.db
+        anvi-export-functions -c NOB1e_contigs.db -o NOB1e_functions_anvio.txt
