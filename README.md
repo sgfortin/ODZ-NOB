@@ -22,6 +22,8 @@ FastANI v0.1.3 was used to calculate the average nucleotide identity of NOB MAGs
 
 A first look for nxrB genes was performed on KBase using the “Search with HMMs of Environmental Bioelement Families” v1 and the available Nitrite oxidation-NxrB HMM. Each result was checked manually using NCBI blastn searches. Further nxrB genes were identified using BLASTn v2.12.0 on KBase using known nxrB genes previously identified from NOB, an E-value threshold of 0.001, and a minimum sequence identity threshold of 50%.
 
+Genomes were annotated with DRAM 
+
 ### Mapping Relative Abundance of MAGs with Bowtie2
 Short reads from OMZ metagenome samples produced in this study and published metagenomes from OMZ regions and the Tara Oceans database were mapped to ODZ NOB MAGs created in this study and published NOB genomes and SAGs using bowtie2. 
 
@@ -43,7 +45,7 @@ Short reads from OMZ metagenome samples produced in this study and published met
 
 
 ### Genome Annotation with Anvi'o 
-ODZ NOB genomes, the most abundant oxic SAG, and Nitrospina gracilis 
+ODZ NOB genomes, the most abundant oxic SAG, and Nitrospina gracilis were annotated against the NCBI COGs, KEGG kofam, and pfam databases using anvi'o v. 7.1. 
 
         #!/bin/bash
 
@@ -56,10 +58,10 @@ ODZ NOB genomes, the most abundant oxic SAG, and Nitrospina gracilis
         SAMPLE=$(sed -n "$SLURM_ARRAY_TASK_ID"p array_set1.txt)
 
         anvi-script-reformat-fasta ${SAMPLE}.fa -o ${SAMPLE}_simpnames.fa --simplify-names --report-file ${SAMPLE}_simpnames_report.txt
-        anvi-gen-contigs-database -f ${SAMPLE}_simpnames.fa -o NOB1e_contigs.db --ignore-internal-stop-codons
-        anvi-run-hmms -c NOB1e_contigs.db
-        anvi-run-scg-taxonomy -c NOB1e_contigs.db
-        anvi-run-ncbi-cogs -c NOB1e_contigs.db
-        anvi-run-kegg-kofams -c NOB1e_contigs.db
-        anvi-run-pfams -c NOB1e_contigs.db
-        anvi-export-functions -c NOB1e_contigs.db -o NOB1e_functions_anvio.txt
+        anvi-gen-contigs-database -f ${SAMPLE}_simpnames.fa -o ${SAMPLE}_contigs.db --ignore-internal-stop-codons
+        anvi-run-hmms -c ${SAMPLE}_contigs.db
+        anvi-run-scg-taxonomy -c ${SAMPLE}_contigs.db
+        anvi-run-ncbi-cogs -c ${SAMPLE}_contigs.db
+        anvi-run-kegg-kofams -c ${SAMPLE}_contigs.db
+        anvi-run-pfams -c ${SAMPLE}_contigs.db
+        anvi-export-functions -c ${SAMPLE}_contigs.db -o ${SAMPLE}_functions_anvio.txt
